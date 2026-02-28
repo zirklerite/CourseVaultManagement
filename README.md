@@ -1,4 +1,4 @@
-# GitVaultAutomation
+# Course Vault Management
 
 Python scripts for batch-managing a Gitea instance for teaching: create student accounts, courses, teams, and repos via the Gitea API.
 
