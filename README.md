@@ -61,6 +61,7 @@ Each CSV file represents **one class/course** (one Gitea organization).
 |---|---|
 | `check_org.py <org_name>` | Display org details: visibility, teams, repos, members |
 | `check_students.py <csv>` | Verify each student's account, org membership, and team placement |
+| `check_login.py <csv>` | Show students who have never signed into Gitea |
 | `list_orgs.py` | List all organizations |
 | `list_repos.py <org_name>` | List repos in an organization with clone URLs |
 
