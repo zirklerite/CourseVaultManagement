@@ -8,8 +8,8 @@ import getpass
 
 
 def load_env():
-    """Load .env file from the same directory as this script."""
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    """Load .env file from the project root (parent of scripts/)."""
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
     if not os.path.exists(env_path):
         return
     with open(env_path, "r", encoding="utf-8") as f:

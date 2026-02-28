@@ -287,12 +287,12 @@ def get_org_repos(session, course_name):
 
 # --- CSV file resolution ---
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def resolve_csv(course_name):
-    """Resolve course name to CSV file path: {course_name}.csv in the script directory."""
-    return os.path.join(SCRIPT_DIR, f"{course_name}.csv")
+    """Resolve course name to CSV file path: {course_name}.csv in the project root."""
+    return os.path.join(PROJECT_DIR, f"{course_name}.csv")
 
 
 # --- CSV parsing ---

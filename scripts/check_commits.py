@@ -24,7 +24,7 @@ from gitea_api import (
     get_session, get_all_teams, get_team_members, get_team_repos,
 )
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def load_aliases(course_name):
@@ -33,7 +33,7 @@ def load_aliases(course_name):
     Format: git_email student_id
     Returns dict {email_lower: student_id_lower}.
     """
-    aliases_file = os.path.join(SCRIPT_DIR, f"{course_name}.aliases.csv")
+    aliases_file = os.path.join(PROJECT_DIR, f"{course_name}.aliases.csv")
     aliases = {}
     if not os.path.exists(aliases_file):
         return aliases

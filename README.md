@@ -8,20 +8,20 @@ All scripts use `<course_name>` as the argument. CSV files are named `{course_na
 
 ```
 1. Create a course
-   python create_course.py 114-2_ExampleCourse
+   python scripts/create_course.py 114-2_ExampleCourse
 
 2. Add student accounts (and optionally assign to teams)
-   python add_students.py 114-2_ExampleCourse
+   python scripts/add_students.py 114-2_ExampleCourse
 
 3. Create team repos for team projects (optional)
-   python create_repos.py 114-2_ExampleCourse
-   python create_repos.py 114-2_ExampleCourse teacher/GameTemplate
+   python scripts/create_repos.py 114-2_ExampleCourse
+   python scripts/create_repos.py 114-2_ExampleCourse teacher/GameTemplate
 
 4. Verify everything is set up correctly
-   python check_course.py 114-2_ExampleCourse
-   python check_students.py 114-2_ExampleCourse
-   python check_login.py 114-2_ExampleCourse
-   python check_commits.py 114-2_ExampleCourse
+   python scripts/check_course.py 114-2_ExampleCourse
+   python scripts/check_students.py 114-2_ExampleCourse
+   python scripts/check_login.py 114-2_ExampleCourse
+   python scripts/check_commits.py 114-2_ExampleCourse
 ```
 
 ## CSV Format
