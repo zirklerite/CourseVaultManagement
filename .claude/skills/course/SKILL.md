@@ -73,6 +73,7 @@ Alias file: `{course_name}.aliases.csv` (optional, auto-loaded by `check_commits
 - When presenting script output, read the CSV file to look up **student names** by StudentID (the scripts only output IDs). Include names alongside IDs in your report to the user.
 - If students show "does not exist", suggest running `add_students` first.
 - When the user says **"local"** (e.g., "show me the local teams", "check local students"), read directly from the CSV files instead of calling scripts that query the remote Gitea server. For example, "local teams" means parse `{course_name}.csv` and list the team names and members found in the file.
+- When the user says **"add {student(s)} to local team {team}"**, edit the CSV file to set or change the team column. Supports one or multiple students (by ID or name, partial match). Show all matched students with **name**, **StudentID**, and the **target team name**, then confirm before editing. Team names must be in English with no spaces (e.g., `TeamAlpha`). If the user gives a name with spaces or non-English characters, convert it to a valid team name and confirm.
 
 ## Reset password
 
