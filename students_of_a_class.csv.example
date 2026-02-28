@@ -6,10 +6,10 @@
 # All entries in a file should use the same CourseName
 # CourseName (organization) and GroupName (team) must not contain spaces
 
-# 課程 學號 姓名 組別
-114-2_ExampleCourse A1234567 張某某
-114-2_ExampleCourse B9876543 李某某
-# 114-2_ExampleCourse C1122334 王某某
-114-2_ExampleCourse D5678901 陳某某
-114-2_ExampleCourse E1234567 劉某某 TeamAlpha
-114-2_ExampleCourse F1234567 黃某某 TeamAlpha
+# CourseName StudentID StudentName GroupName
+114-2_ExampleCourse A1234567 StudentA
+114-2_ExampleCourse B9876543 StudentB
+# 114-2_ExampleCourse C1122334 StudentC
+114-2_ExampleCourse D5678901 StudentD
+114-2_ExampleCourse E1234567 StudentE TeamAlpha
+114-2_ExampleCourse F1234567 StudentF TeamAlpha

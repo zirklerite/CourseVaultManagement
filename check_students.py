@@ -56,7 +56,7 @@ def main():
         # Check user exists
         resp = session.get(f"{GITEA_URL}/api/v1/users/{sid}")
         if resp.status_code != 200:
-            print(f"  FAIL: {sid} — user does not exist")
+            print(f"  FAIL: {sid} - user does not exist")
             issues += 1
             continue
 
@@ -102,7 +102,7 @@ def main():
                         errors.append(f"team has mismatched repo '{r}'")
 
         if errors:
-            print(f"  FAIL: {sid} — {'; '.join(errors)}")
+            print(f"  FAIL: {sid} - {'; '.join(errors)}")
             issues += 1
         else:
             label = f" (org: {org_name}, team: {team_name})" if team_name else f" (org: {org_name})"
