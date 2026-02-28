@@ -6,28 +6,28 @@ Verifies that each student in the CSV:
   - Is in exactly one team within this organization
   - Team name matches its repo name
 
-CSV format: org_name student_id name [team_name]
+CSV format ({org_name}.csv): org_name student_id name [team_name]
   113-SophomoreProjects A113080006 XXXX TeamAlpha
 
 Usage:
-  python check_students.py <students.csv>
-  Example: python check_students.py students_113-SophomoreProjects.csv
+  python check_students.py <org_name>
+  Example: python check_students.py 113-SophomoreProjects
 """
 
 import sys
 from config import GITEA_URL, get_credentials
 from gitea_api import (
-    get_session, get_user_orgs, parse_csv, validate_single_org,
+    get_session, get_user_orgs, resolve_csv, parse_csv, validate_single_org,
     get_org_teams_dict, is_team_member, get_team_repos,
 )
 
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python check_students.py <students.csv>")
+        print("Usage: python check_students.py <org_name>")
         sys.exit(1)
 
-    input_file = sys.argv[1]
+    input_file = resolve_csv(sys.argv[1])
 
     try:
         entries = parse_csv(input_file)

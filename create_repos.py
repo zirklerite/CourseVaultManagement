@@ -25,10 +25,10 @@ CSV format: org_name student_id name team_name
   113-SophomoreProjects A113080081 ZZZZ AnotherGame
 
 Usage:
-  python create_repos.py <students.csv>
-  python create_repos.py <students.csv> <template_owner/template_repo>
-  Example: python create_repos.py students_113-SophomoreProjects.csv
-  Example: python create_repos.py students_113-SophomoreProjects.csv teacher/GameTemplate
+  python create_repos.py <org_name>
+  python create_repos.py <org_name> <template_owner/template_repo>
+  Example: python create_repos.py 113-SophomoreProjects
+  Example: python create_repos.py 113-SophomoreProjects teacher/GameTemplate
 
 Result:
   Organization: 113-SophomoreProjects (private)
@@ -42,7 +42,7 @@ Result:
 import sys
 from config import GITEA_URL, get_credentials
 from gitea_api import (
-    get_session, parse_csv_groups,
+    get_session, resolve_csv, parse_csv_groups,
     ensure_team, ensure_repo, create_blank_repo, get_all_teams,
     get_team_members, get_team_repos,
     add_team_member, remove_team_member, add_team_repo,
@@ -51,12 +51,12 @@ from gitea_api import (
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python create_repos.py <students.csv> [template_owner/template_repo]")
-        print("Example: python create_repos.py students_113-SophomoreProjects.csv")
-        print("Example: python create_repos.py students_113-SophomoreProjects.csv teacher/GameTemplate")
+        print("Usage: python create_repos.py <org_name> [template_owner/template_repo]")
+        print("Example: python create_repos.py 113-SophomoreProjects")
+        print("Example: python create_repos.py 113-SophomoreProjects teacher/GameTemplate")
         sys.exit(1)
 
-    csv_file = sys.argv[1]
+    csv_file = resolve_csv(sys.argv[1])
     template_owner = template_repo = None
 
     if len(sys.argv) >= 3:

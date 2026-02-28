@@ -4,20 +4,24 @@ Python scripts for batch-managing a Gitea instance for teaching: create student 
 
 ## Typical Workflow
 
+All scripts use `<org_name>` as the argument. CSV files are named `{org_name}.csv`.
+
 ```
 1. Create an organization for the course
    python create_org.py 114-2_ExampleCourse
 
 2. Add student accounts (and optionally assign to teams)
-   python add_students.py students_example.csv
+   python add_students.py 114-2_ExampleCourse
 
 3. Create team repos for group projects (optional)
-   python create_repos.py students_example.csv
-   python create_repos.py students_example.csv teacher/GameTemplate
+   python create_repos.py 114-2_ExampleCourse
+   python create_repos.py 114-2_ExampleCourse teacher/GameTemplate
 
 4. Verify everything is set up correctly
    python check_org.py 114-2_ExampleCourse
-   python check_students.py students_example.csv
+   python check_students.py 114-2_ExampleCourse
+   python check_login.py 114-2_ExampleCourse
+   python check_commits.py 114-2_ExampleCourse
 ```
 
 ## CSV Format
@@ -52,16 +56,17 @@ Each CSV file represents **one class/course** (one Gitea organization).
 | Script | Description |
 |---|---|
 | `create_org.py <org_name>` | Create a private organization |
-| `add_students.py <csv>` | Batch create student accounts, assign to org and teams |
-| `create_repos.py <csv> [template]` | Create team repos (blank or from template), assign to teams |
+| `add_students.py <org_name>` | Batch create student accounts, assign to org and teams |
+| `create_repos.py <org_name> [template]` | Create team repos (blank or from template), assign to teams |
 
 ### Inspection
 
 | Script | Description |
 |---|---|
 | `check_org.py <org_name>` | Display org details: visibility, teams, repos, members |
-| `check_students.py <csv>` | Verify each student's account, org membership, and team placement |
-| `check_login.py <csv>` | Show students who have never signed into Gitea |
+| `check_students.py <org_name>` | Verify each student's account, org membership, and team placement |
+| `check_login.py <org_name>` | Show students who have never signed into Gitea |
+| `check_commits.py <org_name> [team]` | Show teams where no student has committed yet. Supports alias files |
 | `list_orgs.py` | List all organizations |
 | `list_repos.py <org_name>` | List repos in an organization with clone URLs |
 
@@ -91,6 +96,25 @@ Organization: 114-2_ExampleCourse (private)
 - Repos can be created blank or from a template (`owner/repo`)
 - Within one org, a student belongs to exactly one team (auto-corrected)
 - A student may belong to teams in different organizations (different CSVs)
+
+### Commit Checking (`check_commits.py`)
+
+Checks whether team repos have any non-admin commits. Commits are identified by
+comparing the git author against Owners team members and admin emails.
+
+Students may commit with a personal git account (different name/email) that Gitea
+cannot link to their student account. To handle this, create an alias file named
+`{org_name}.aliases.csv`:
+
+```
+# Git email to StudentID mapping
+# Format: git_email student_id
+someone@gmail.com A1234567
+another@example.com B9876543
+```
+
+The script loads this file automatically if it exists. Unresolved authors are
+reported as "unknown git authors" at the end of the output.
 
 ## Configuration
 

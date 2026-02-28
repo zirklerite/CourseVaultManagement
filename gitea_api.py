@@ -2,6 +2,7 @@
 Shared Gitea API helper functions used by multiple scripts.
 """
 
+import os
 import requests
 from config import GITEA_URL
 
@@ -282,6 +283,16 @@ def get_org_repos(session, org_name):
         repos.extend(data)
         page += 1
     return repos
+
+
+# --- CSV file resolution ---
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def resolve_csv(org_name):
+    """Resolve org name to CSV file path: {org_name}.csv in the script directory."""
+    return os.path.join(SCRIPT_DIR, f"{org_name}.csv")
 
 
 # --- CSV parsing ---

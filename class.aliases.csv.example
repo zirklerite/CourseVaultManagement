@@ -1,0 +1,7 @@
+# Git email to StudentID mapping for check_commits.py
+# Format: git_email student_id
+# Lines starting with # are ignored
+# Use this when students commit with a personal git account
+# instead of their Gitea account.
+someone@gmail.com A1234567
+another@example.com B9876543

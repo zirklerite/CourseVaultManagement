@@ -7,17 +7,17 @@ Limitations:
   - Only detects web UI logins, not git push/clone over HTTP or SSH.
   - The Gitea API only provides the last login timestamp, not login count.
 
-CSV format: org_name student_id name [team_name]
+CSV format ({org_name}.csv): org_name student_id name [team_name]
   114-2_ExampleCourse A1234567 XXXX TeamAlpha
 
 Usage:
-  python check_login.py <students.csv>
-  Example: python check_login.py students_example.csv
+  python check_login.py <org_name>
+  Example: python check_login.py 113-SophomoreProjects
 """
 
 import sys
 from config import GITEA_URL, get_credentials
-from gitea_api import get_session, parse_csv, validate_single_org
+from gitea_api import get_session, resolve_csv, parse_csv, validate_single_org
 
 NEVER_LOGGED_IN_MARKERS = [
     "0001-01-01",
@@ -34,10 +34,10 @@ def is_never_logged_in(last_login):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python check_login.py <students.csv>")
+        print("Usage: python check_login.py <org_name>")
         sys.exit(1)
 
-    input_file = sys.argv[1]
+    input_file = resolve_csv(sys.argv[1])
 
     try:
         entries = parse_csv(input_file)

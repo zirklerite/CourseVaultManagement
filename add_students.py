@@ -7,19 +7,19 @@ Within one organization, a student belongs to exactly one team;
 removes from wrong teams if needed.
 A student may belong to teams in different organizations (different class CSVs).
 
-CSV format: org_name student_id name [team_name]
+CSV format ({org_name}.csv): org_name student_id name [team_name]
   113-SophomoreProjects A113080006 XXXX TeamAlpha
   113-SophomoreProjects A113080036 YYYY TeamAlpha
 
 Usage:
-  python add_students.py <students.csv>
-  Example: python add_students.py students_113-SophomoreProjects.csv
+  python add_students.py <org_name>
+  Example: python add_students.py 113-SophomoreProjects
 """
 
 import sys
 from config import GITEA_URL, get_credentials
 from gitea_api import (
-    get_session, user_exists, parse_csv, validate_single_org,
+    get_session, user_exists, resolve_csv, parse_csv, validate_single_org,
     ensure_team, get_all_teams, get_team_members,
     add_team_member, remove_team_member,
 )
@@ -42,10 +42,10 @@ def create_user(session, student_id, password):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python add_students.py <students.csv>")
+        print("Usage: python add_students.py <org_name>")
         sys.exit(1)
 
-    input_file = sys.argv[1]
+    input_file = resolve_csv(sys.argv[1])
 
     try:
         entries = parse_csv(input_file)
