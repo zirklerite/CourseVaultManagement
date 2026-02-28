@@ -1,0 +1,15 @@
+
+# Lines starting with # are ignored
+# Format: CourseName StudentID StudentName [GroupName]
+# GroupName is optional
+# Each file represents one class/course (one Gitea organization)
+# All entries in a file should use the same CourseName
+# CourseName (organization) and GroupName (team) must not contain spaces
+
+# 課程 學號 姓名 組別
+114-2_ExampleCourse A1234567 張某某
+114-2_ExampleCourse B9876543 李某某
+# 114-2_ExampleCourse C1122334 王某某
+114-2_ExampleCourse D5678901 陳某某
+114-2_ExampleCourse E1234567 劉某某 TeamAlpha
+114-2_ExampleCourse F1234567 黃某某 TeamAlpha
