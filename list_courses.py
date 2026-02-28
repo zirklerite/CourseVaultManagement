@@ -1,9 +1,9 @@
 """
-Gitea List Organizations
-Lists all organizations visible to the authenticated user.
+Gitea List Courses
+Lists all courses (organizations) visible to the authenticated user.
 
 Usage:
-  python list_orgs.py
+  python list_courses.py
 """
 
 from config import GITEA_URL, get_credentials
@@ -14,7 +14,7 @@ def main():
     admin_user, admin_pass = get_credentials()
     session = get_session(admin_user, admin_pass)
 
-    orgs = []
+    courses = []
     page = 1
     while True:
         resp = session.get(
@@ -27,23 +27,23 @@ def main():
                 params={"page": page, "limit": 50},
             )
             if resp.status_code != 200:
-                print(f"Error: Could not list organizations (HTTP {resp.status_code})")
+                print(f"Error: Could not list courses (HTTP {resp.status_code})")
                 break
         data = resp.json()
         if not data:
             break
-        orgs.extend(data)
+        courses.extend(data)
         page += 1
 
-    if not orgs:
-        print("No organizations found.")
+    if not courses:
+        print("No courses found.")
         return
 
-    print(f"Organizations ({len(orgs)}):\n")
-    for org in orgs:
-        vis = org.get("visibility", "unknown")
-        desc = org.get("description") or ""
-        print(f"  {org['username']} ({vis}){('  ' + desc) if desc else ''}")
+    print(f"Courses ({len(courses)}):\n")
+    for course in courses:
+        vis = course.get("visibility", "unknown")
+        desc = course.get("description") or ""
+        print(f"  {course['username']} ({vis}){('  ' + desc) if desc else ''}")
 
 
 if __name__ == "__main__":

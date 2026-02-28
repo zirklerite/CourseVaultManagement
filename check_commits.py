@@ -4,7 +4,7 @@ Shows teams where no non-admin commit has been made to the team repo yet.
 Fetches teams, members, and repos directly from the Gitea API.
 Skips the Owners team.
 
-An optional {org_name}.aliases.csv file can map git emails to student IDs,
+An optional {course_name}.aliases.csv file can map git emails to student IDs,
 so commits from unlinked git accounts are attributed correctly.
 
 Limitations:
@@ -12,7 +12,7 @@ Limitations:
     git emails are counted as non-admin but reported as unknown.
 
 Usage:
-  python check_commits.py <org_name> [team_name]
+  python check_commits.py <course_name> [team_name]
   Example: python check_commits.py 113-SophomoreProjects
   Example: python check_commits.py 113-SophomoreProjects IngrainedMemory
 """
@@ -27,13 +27,13 @@ from gitea_api import (
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def load_aliases(org_name):
-    """Load git email -> student_id mapping from {org_name}.aliases.csv.
+def load_aliases(course_name):
+    """Load git email -> student_id mapping from {course_name}.aliases.csv.
 
     Format: git_email student_id
     Returns dict {email_lower: student_id_lower}.
     """
-    aliases_file = os.path.join(SCRIPT_DIR, f"{org_name}.aliases.csv")
+    aliases_file = os.path.join(SCRIPT_DIR, f"{course_name}.aliases.csv")
     aliases = {}
     if not os.path.exists(aliases_file):
         return aliases
@@ -47,7 +47,7 @@ def load_aliases(org_name):
                 aliases[parts[0].lower()] = parts[1].lower()
     count = len(aliases)
     if count:
-        print(f"Loaded {count} alias(es) from {org_name}.aliases.csv.")
+        print(f"Loaded {count} alias(es) from {course_name}.aliases.csv.")
     return aliases
 
 
@@ -70,12 +70,12 @@ def get_repo_commits(session, owner, repo):
     return all_commits
 
 
-def analyze_commits(commits, admin_logins, admin_emails, member_logins, org_name, aliases):
+def analyze_commits(commits, admin_logins, admin_emails, student_logins, course_name, aliases):
     """Analyze commits and categorize authors.
 
     Returns (non_admin_count, unknown_authors).
     unknown_authors is a set of "name <email>" strings for commits that
-    are not from admins and not linked to any team member's Gitea account.
+    are not from admins and not linked to any team student's Gitea account.
     aliases maps git emails to student IDs for unlinked accounts.
     """
     non_admin_count = 0
@@ -85,8 +85,8 @@ def analyze_commits(commits, admin_logins, admin_emails, member_logins, org_name
         git_name = c.get("commit", {}).get("author", {}).get("name", "")
         git_email = c.get("commit", {}).get("author", {}).get("email", "").lower()
 
-        # Skip template commits (org name as author)
-        if git_name == org_name:
+        # Skip template commits (course name as author)
+        if git_name == course_name:
             continue
 
         # Check linked Gitea account
@@ -96,7 +96,7 @@ def analyze_commits(commits, admin_logins, admin_emails, member_logins, org_name
             if login in admin_logins:
                 continue
             non_admin_count += 1
-            if login not in member_logins:
+            if login not in student_logins:
                 unknown_authors.add(f"{git_name} <{git_email}> (gitea: {author['login']})")
             continue
 
@@ -106,8 +106,8 @@ def analyze_commits(commits, admin_logins, admin_emails, member_logins, org_name
             if alias_sid in admin_logins:
                 continue
             non_admin_count += 1
-            # Alias resolved to a known member - not unknown
-            if alias_sid not in member_logins:
+            # Alias resolved to a known student - not unknown
+            if alias_sid not in student_logins:
                 unknown_authors.add(f"{git_name} <{git_email}> (alias: {alias_sid})")
             continue
 
@@ -121,24 +121,24 @@ def analyze_commits(commits, admin_logins, admin_emails, member_logins, org_name
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python check_commits.py <org_name> [team_name]")
+        print("Usage: python check_commits.py <course_name> [team_name]")
         sys.exit(1)
 
-    org_name = sys.argv[1]
+    course_name = sys.argv[1]
     filter_team = sys.argv[2] if len(sys.argv) >= 3 else None
-    aliases = load_aliases(org_name)
+    aliases = load_aliases(course_name)
     admin_user, admin_pass = get_credentials()
     session = get_session(admin_user, admin_pass)
 
-    # Verify org exists
-    resp = session.get(f"{GITEA_URL}/api/v1/orgs/{org_name}")
+    # Verify course exists
+    resp = session.get(f"{GITEA_URL}/api/v1/orgs/{course_name}")
     if resp.status_code != 200:
-        print(f"Error: Organization '{org_name}' not found.")
+        print(f"Error: Course '{course_name}' not found.")
         sys.exit(1)
 
     # Get admin/owner logins and emails to exclude their commits
     from gitea_api import get_all_teams as _get_all_teams
-    owner_teams = [t for t in _get_all_teams(session, org_name, include_owners=True)
+    owner_teams = [t for t in _get_all_teams(session, course_name, include_owners=True)
                    if t["name"] == "Owners"]
     admin_logins = set()
     admin_emails = set()
@@ -151,18 +151,18 @@ def main():
                 if email:
                     admin_emails.add(email)
 
-    teams = get_all_teams(session, org_name)
+    teams = get_all_teams(session, course_name)
     if filter_team:
         teams = [t for t in teams if t["name"] == filter_team]
         if not teams:
-            print(f"Error: Team '{filter_team}' not found in '{org_name}'.")
+            print(f"Error: Team '{filter_team}' not found in '{course_name}'.")
             sys.exit(1)
 
     if not teams:
-        print(f"No teams found in '{org_name}' (excluding Owners).")
+        print(f"No teams found in '{course_name}' (excluding Owners).")
         return
 
-    print(f"Checking {len(teams)} team(s) in org '{org_name}'...")
+    print(f"Checking {len(teams)} team(s) in course '{course_name}'...")
 
     no_commits = []
     all_unknown = set()
@@ -177,16 +177,16 @@ def main():
             print(f"  SKIP: {team_name} - no repo assigned")
             continue
 
-        member_logins = set(sid.lower() for sid in members)
+        student_logins = set(student_id.lower() for student_id in members)
 
         for repo_name in repos:
-            commits = get_repo_commits(session, org_name, repo_name)
+            commits = get_repo_commits(session, course_name, repo_name)
             if commits is None:
-                print(f"  FAIL: {team_name} - could not read repo '{org_name}/{repo_name}'")
+                print(f"  FAIL: {team_name} - could not read repo '{course_name}/{repo_name}'")
                 continue
 
             non_admin, unknown = analyze_commits(
-                commits, admin_logins, admin_emails, member_logins, org_name, aliases
+                commits, admin_logins, admin_emails, student_logins, course_name, aliases
             )
             total = len(commits)
             if non_admin > 0:
@@ -206,7 +206,7 @@ def main():
             print(f"  {name}")
 
     if all_unknown:
-        print(f"\nUnknown git authors (not linked to any team member account):")
+        print(f"\nUnknown git authors (not linked to any team student account):")
         current_team = None
         for team_name, repo_name, author in sorted(all_unknown):
             if team_name != current_team:

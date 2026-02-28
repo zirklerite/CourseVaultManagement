@@ -1,0 +1,15 @@
+
+# Lines starting with # are ignored
+# Format: Course StudentID StudentName [Team]
+# Team is optional
+# Each file represents one course (one Gitea organization)
+# All entries in a file should use the same Course
+# Course (organization) and Team must not contain spaces
+
+# Course StudentID StudentName Team
+114-2_ExampleCourse A1234567 StudentA
+114-2_ExampleCourse B9876543 StudentB
+# 114-2_ExampleCourse C1122334 StudentC
+114-2_ExampleCourse D5678901 StudentD
+114-2_ExampleCourse E1234567 StudentE TeamAlpha
+114-2_ExampleCourse F1234567 StudentF TeamAlpha
