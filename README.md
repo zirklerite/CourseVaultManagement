@@ -58,6 +58,7 @@ Each CSV file represents **one course** (one Gitea organization).
 | `create_course.py <course_name>` | Create a private course |
 | `add_students.py <course_name>` | Batch create student accounts, assign to course and teams |
 | `create_repos.py <course_name> [template]` | Create team repos (blank or from template), assign to teams |
+| `reset_password.py <course_name> <student_id>` | Reset a student's password to default (reversed ID), must change on next login |
 
 ### Inspection
 

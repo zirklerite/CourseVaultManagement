@@ -42,6 +42,7 @@ Available course CSV files:
 | `list_courses` | *(none)* | List all courses |
 | `list_repos` | `<course_name>` | List repos with clone URLs |
 | `list_templates` | *(none)* | List available template repos for `create_repos` |
+| `reset_password` | `<course_name> <student_id>` | Reset a student's password to default (reversed ID) |
 
 ## CSV format
 
@@ -72,6 +73,13 @@ Alias file: `{course_name}.aliases.csv` (optional, auto-loaded by `check_commits
 - When presenting script output, read the CSV file to look up **student names** by StudentID (the scripts only output IDs). Include names alongside IDs in your report to the user.
 - If students show "does not exist", suggest running `add_students` first.
 - When the user says **"local"** (e.g., "show me the local teams", "check local students"), read directly from the CSV files instead of calling scripts that query the remote Gitea server. For example, "local teams" means parse `{course_name}.csv` and list the team names and members found in the file.
+
+## Reset password
+
+**Always confirm before resetting.** Look up the student in the CSV and show both **name** and **StudentID**. Only run `reset_password.py` after the user confirms.
+
+- If the user gives a **name** (not an ID): search the CSV with partial match. If multiple matches, list them all and ask the user to pick one.
+- If the user gives a **StudentID**: look up the name from the CSV and show it for confirmation.
 
 ## Your task
 
