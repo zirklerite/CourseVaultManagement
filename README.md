@@ -69,6 +69,7 @@ Each CSV file represents **one course** (one Gitea organization).
 | `check_commits.py <course_name> [team]` | Show teams where no student has committed yet. Supports alias files |
 | `list_courses.py` | List all courses |
 | `list_repos.py <course_name>` | List repos in a course with clone URLs |
+| `list_templates.py` | List available template repos for `create_repos` |
 
 ## How It Works
 

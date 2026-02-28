@@ -41,6 +41,7 @@ Available course CSV files:
 | `check_commits` | `<course_name> [team]` | Show teams with no student commits yet |
 | `list_courses` | *(none)* | List all courses |
 | `list_repos` | `<course_name>` | List repos with clone URLs |
+| `list_templates` | *(none)* | List available template repos for `create_repos` |
 
 ## CSV format
 
