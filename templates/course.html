@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course_name }}{% endblock %}
+
+{% block nav %}
+<li><a href="/course/{{ course_name }}/teams">Manage Teams</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ course_name }}</h1>
+    <p class="subtitle"><a href="/">Courses</a> / Roster Overview</p>
+</div>
+
+{% for team_name, students in teams.items() %}
+<article>
+    <header>
+        <strong>{{ team_name }}</strong>
+        <span class="team-header-count">{{ students|length }} student{{ 's' if students|length != 1 }}</span>
+    </header>
+    <div class="overflow-auto">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Login Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr class="{% if not s.active %}inactive{% endif %}">
+                    <td>{{ s.student_id }}</td>
+                    <td>
+                        {{ s.student_name }}
+                        {% if not s.active %}<span class="badge badge-inactive">Inactive</span>{% endif %}
+                    </td>
+                    <td class="login-status" data-student-id="{{ s.student_id }}">
+                        <span aria-busy="true"></span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</article>
+{% endfor %}
+
+{% if unassigned %}
+<article>
+    <header>
+        <strong>Unassigned</strong>
+        <span class="team-header-count">{{ unassigned|length }} student{{ 's' if unassigned|length != 1 }}</span>
+    </header>
+    <div class="overflow-auto">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Login Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in unassigned %}
+                <tr class="{% if not s.active %}inactive{% endif %}">
+                    <td>{{ s.student_id }}</td>
+                    <td>
+                        {{ s.student_name }}
+                        {% if not s.active %}<span class="badge badge-inactive">Inactive</span>{% endif %}
+                    </td>
+                    <td class="login-status" data-student-id="{{ s.student_id }}">
+                        <span aria-busy="true"></span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</article>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    fetchLoginStatus("{{ course_name }}");
+</script>
+{% endblock %}

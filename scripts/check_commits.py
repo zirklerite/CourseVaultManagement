@@ -33,7 +33,8 @@ def load_aliases(course_name):
     Format: git_email student_id
     Returns dict {email_lower: student_id_lower}.
     """
-    aliases_file = os.path.join(PROJECT_DIR, f"{course_name}.aliases.csv")
+    courses_dir = os.path.join(PROJECT_DIR, 'courses')
+    aliases_file = os.path.join(courses_dir, f"{course_name}.aliases.csv")
     aliases = {}
     if not os.path.exists(aliases_file):
         return aliases

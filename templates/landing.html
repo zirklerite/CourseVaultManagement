@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}CourseVault — Courses{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Courses</h1>
+    <p class="subtitle">Manage your course rosters and teams</p>
+</div>
+
+<div class="course-grid">
+    {% for course in courses %}
+    <article>
+        <header>
+            <a href="/course/{{ course.name }}">{{ course.name | replace('-', '\u2011') }}</a>
+        </header>
+        <p>
+            <span class="stat-chip"><strong>{{ course.student_count }}</strong> students</span>
+            <span class="stat-chip"><strong>{{ course.team_count }}</strong> teams</span>
+        </p>
+        <footer>
+            <a href="/course/{{ course.name }}" role="button" class="outline">View Roster</a>
+            <a href="/course/{{ course.name }}/teams" role="button" class="outline secondary">Teams</a>
+        </footer>
+    </article>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">&#128218;</div>
+        <p>No courses found. Add a CSV file to get started.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
