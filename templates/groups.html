@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ course_name }} — Teams{% endblock %}
+{% block title %}{{ course_name }} — Groups{% endblock %}
 
 {% block nav %}
 <li><a href="/course/{{ course_name }}">Course Overview</a></li>
@@ -8,19 +8,19 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>Team Management</h1>
-    <p class="subtitle"><a href="/">Courses</a> / <a href="/course/{{ course_name }}">{{ course_name }}</a> / Teams</p>
+    <h1>Group Management</h1>
+    <p class="subtitle"><a href="/">Courses</a> / <a href="/course/{{ course_name }}">{{ course_name }}</a> / Groups</p>
 </div>
 
-{# --- Create Team --- #}
+{# --- Create Group --- #}
 <div class="create-team-row">
-    <input id="new-team-name" placeholder="New team name">
-    <button class="outline" onclick="createTeam()">Create Team</button>
+    <input id="new-team-name" placeholder="New group name">
+    <button class="outline" onclick="createTeam()">Create Group</button>
 </div>
 
 <div class="team-chip-list" id="team-chip-list">
     <span class="team-chip active" onclick="toggleTeamChip(this)" data-team="Unassigned">Unassigned{% if unassigned %} ({{ unassigned|length }}){% endif %}</span>
-    {% for t in team_names %}
+    {% for t in group_names %}
     <span class="team-chip active" onclick="toggleTeamChip(this)" data-team="{{ t }}">{{ t }}</span>
     {% endfor %}
 </div>
@@ -56,8 +56,8 @@
                     </td>
                     <td class="actions">
                         <select class="team-select" data-line="{{ s.line_number }}">
-                            <option value="" disabled selected>Select team…</option>
-                            {% for t in team_names %}
+                            <option value="" disabled selected>Select group…</option>
+                            {% for t in group_names %}
                             <option value="{{ t }}">{{ t }}</option>
                             {% endfor %}
                         </select>
@@ -78,11 +78,11 @@
 </article>
 {% endif %}
 
-{# --- Team Sections --- #}
-{% for team_name, students in teams.items() %}
-<article data-team="{{ team_name }}">
+{# --- Group Sections --- #}
+{% for group_name, students in groups.items() %}
+<article data-team="{{ group_name }}">
     <header>
-        <strong>{{ team_name }}</strong>
+        <strong>{{ group_name }}</strong>
         <span class="team-header-count">{{ students|length }} student{{ 's' if students|length != 1 }}</span>
     </header>
     <div class="overflow-auto">

@@ -19,13 +19,13 @@ Available course CSV files:
 | Course | Organization (private) |
 | Student | User account (limited, restricted) |
 | StudentID | Username |
-| Team | Team + Repository (same name) |
+| Group | Team + Repository (same name) |
 
 ## Typical workflow
 
 1. `create_course` — create the Gitea organization
-2. `add_students` — create accounts and assign to teams
-3. `create_repos` — create team repos (blank or from template)
+2. `add_students` — create accounts and assign to groups
+3. `create_repos` — create group repos (blank or from template)
 4. `check_*` / `list_*` — verify setup
 
 ## Available commands
@@ -33,12 +33,12 @@ Available course CSV files:
 | Command | Args | Description |
 |---|---|---|
 | `create_course` | `<course_name>` | Create a private course |
-| `add_students` | `<course_name>` | Batch create student accounts and assign to teams |
-| `create_repos` | `<course_name> [owner/template]` | Create team repos (blank or from template) |
-| `check_course` | `<course_name>` | Show course details: visibility, teams, repos, students |
-| `check_students` | `<course_name>` | Verify student accounts, course membership, team placement |
+| `add_students` | `<course_name>` | Batch create student accounts and assign to groups |
+| `create_repos` | `<course_name> [owner/template]` | Create group repos (blank or from template) |
+| `check_course` | `<course_name>` | Show course details: visibility, groups, repos, students |
+| `check_students` | `<course_name>` | Verify student accounts, course membership, group placement |
 | `check_login` | `<course_name>` | Show students who never signed into Gitea |
-| `check_commits` | `<course_name> [team]` | Show teams with no student commits yet |
+| `check_commits` | `<course_name> [group]` | Show groups with no student commits yet |
 | `list_courses` | *(none)* | List all courses |
 | `list_repos` | `<course_name>` | List repos with clone URLs |
 | `list_templates` | *(none)* | List available template repos for `create_repos` |
@@ -48,11 +48,11 @@ Available course CSV files:
 
 File: `courses/{course_name}.csv`. Whitespace-delimited.
 
-Fields: `CourseName StudentID StudentName [TeamName]`
+Fields: `CourseName StudentID StudentName [GroupName]`
 - `#` lines are comments
 - All rows must use the same CourseName
-- CourseName and TeamName must not contain spaces
-- TeamName is optional (students without teams won't be assigned to any)
+- CourseName and GroupName must not contain spaces
+- GroupName is optional (students without groups won't be assigned to any)
 
 Alias file: `courses/{course_name}.aliases.csv` (optional, auto-loaded by `check_commits`)
 - Format: `git_email student_id`
@@ -64,7 +64,7 @@ Alias file: `courses/{course_name}.aliases.csv` (optional, auto-loaded by `check
 - **Email**: `{StudentID}@mail.shu.edu.tw`
 - **Account settings**: `visibility: limited`, `restricted: true`, `must_change_password: true`
 - **Idempotency**: setup scripts are safe to re-run; they skip existing items and auto-fix settings
-- **Team constraint**: within one course, a student belongs to exactly one team
+- **Group constraint**: within one course, a student belongs to exactly one group
 
 ## Important rules
 
@@ -72,8 +72,8 @@ Alias file: `courses/{course_name}.aliases.csv` (optional, auto-loaded by `check
 - When output shows FAIL/NEVER/OK, highlight failures clearly to the user.
 - When presenting script output, read the CSV file to look up **student names** by StudentID (the scripts only output IDs). Include names alongside IDs in your report to the user.
 - If students show "does not exist", suggest running `add_students` first.
-- When the user says **"local"** (e.g., "show me the local teams", "check local students"), read directly from the CSV files instead of calling scripts that query the remote Gitea server. For example, "local teams" means parse `courses/{course_name}.csv` and list the team names and members found in the file.
-- When the user says **"add {student(s)} to local team {team}"**, edit the CSV file to set or change the team column. Supports one or multiple students (by ID or name, partial match). Show all matched students with **name**, **StudentID**, and the **target team name**, then confirm before editing. Team names must be in English with no spaces (e.g., `TeamAlpha`). If the user gives a name with spaces or non-English characters, convert it to a valid team name and confirm.
+- When the user says **"local"** (e.g., "show me the local groups", "check local students"), read directly from the CSV files instead of calling scripts that query the remote Gitea server. For example, "local groups" means parse `courses/{course_name}.csv` and list the group names and members found in the file.
+- When the user says **"add {student(s)} to local group {group}"**, edit the CSV file to set or change the group column. Supports one or multiple students (by ID or name, partial match). Show all matched students with **name**, **StudentID**, and the **target group name**, then confirm before editing. Group names must be in English with no spaces (e.g., `TeamAlpha`). If the user gives a name with spaces or non-English characters, convert it to a valid group name and confirm.
 
 ## Reset password
 
@@ -93,7 +93,7 @@ The user invoked `/course` with: $ARGUMENTS
    - If no current course and only one CSV exists, use it.
    - Otherwise, ask.
    - The current course determines which data files are used:
-     - `courses/{course_name}.csv` — student/team roster (required)
+     - `courses/{course_name}.csv` — student/group roster (required)
      - `courses/{course_name}.aliases.csv` — git email mappings (optional, used by `check_commits`)
 
 2. Parse the **command** from the arguments.

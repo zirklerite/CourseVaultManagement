@@ -1,6 +1,6 @@
 """
 Flask web dashboard for CourseVaultManagement.
-Manages courses, students, and teams using CSV files as database
+Manages courses, students, and groups using CSV files as database
 with Gitea API integration for login status.
 """
 
@@ -92,12 +92,12 @@ def landing():
         file_path = csv_manager.resolve_csv_path(name)
         lines = csv_manager.read_csv(file_path)
         students = csv_manager.get_students(lines)
-        teams = csv_manager.get_teams(lines)
+        groups = csv_manager.get_groups(lines)
         active_count = sum(1 for s in students if s.active)
         courses.append({
             'name': name,
             'student_count': active_count,
-            'team_count': len(teams),
+            'group_count': len(groups),
         })
     return render_template('landing.html', courses=courses)
 
@@ -110,38 +110,38 @@ def course_page(name):
     lines = csv_manager.read_csv(file_path)
     students = csv_manager.get_students(lines)
 
-    teams = OrderedDict()
+    groups = OrderedDict()
     unassigned = []
     for s in students:
-        if s.team_name:
-            teams.setdefault(s.team_name, []).append(s)
+        if s.group_name:
+            groups.setdefault(s.group_name, []).append(s)
         else:
             unassigned.append(s)
 
     return render_template('course.html',
-                           course_name=name, teams=teams, unassigned=unassigned)
+                           course_name=name, groups=groups, unassigned=unassigned)
 
 
-@app.route('/course/<name>/teams')
-def teams_page(name):
+@app.route('/course/<name>/groups')
+def groups_page(name):
     file_path = csv_manager.resolve_csv_path(name)
     if not os.path.exists(file_path):
         abort(404)
     lines = csv_manager.read_csv(file_path)
     students = csv_manager.get_students(lines)
-    team_names = csv_manager.get_teams(lines)
+    group_names = csv_manager.get_groups(lines)
 
-    teams = OrderedDict()
+    groups = OrderedDict()
     unassigned = []
     for s in students:
-        if s.team_name:
-            teams.setdefault(s.team_name, []).append(s)
+        if s.group_name:
+            groups.setdefault(s.group_name, []).append(s)
         else:
             unassigned.append(s)
 
-    return render_template('teams.html',
-                           course_name=name, teams=teams,
-                           unassigned=unassigned, team_names=team_names)
+    return render_template('groups.html',
+                           course_name=name, groups=groups,
+                           unassigned=unassigned, group_names=group_names)
 
 
 # --- API Routes ---
@@ -153,12 +153,12 @@ def api_courses():
         file_path = csv_manager.resolve_csv_path(name)
         lines = csv_manager.read_csv(file_path)
         students = csv_manager.get_students(lines)
-        teams = csv_manager.get_teams(lines)
+        groups = csv_manager.get_groups(lines)
         active_count = sum(1 for s in students if s.active)
         courses.append({
             'name': name,
             'student_count': active_count,
-            'team_count': len(teams),
+            'group_count': len(groups),
         })
     return jsonify(courses)
 
@@ -178,14 +178,14 @@ def api_course(name):
     result = {
         'course_name': name,
         'students': [],
-        'teams': csv_manager.get_teams(lines),
+        'groups': csv_manager.get_groups(lines),
     }
     for s in students:
         result['students'].append({
             'line': s.line_number,
             'student_id': s.student_id,
             'student_name': s.student_name,
-            'team_name': s.team_name,
+            'group_name': s.group_name,
             'active': s.active,
             'login_status': login_status.get(s.student_id),
         })
@@ -201,14 +201,14 @@ def api_add_student(name):
     data = request.get_json()
     student_id = data.get('student_id', '').strip()
     student_name = data.get('student_name', '').strip()
-    team_name = data.get('team_name', '').strip() or None
+    group_name = data.get('group_name', '').strip() or None
 
     if not student_id or not student_name:
         return jsonify({'error': 'student_id and student_name are required'}), 400
 
     lines = csv_manager.read_csv(file_path)
     course_name = csv_manager.get_course_name(lines) or name
-    csv_manager.add_student(lines, course_name, student_id, student_name, team_name)
+    csv_manager.add_student(lines, course_name, student_id, student_name, group_name)
     csv_manager.write_csv(file_path, lines)
 
     return jsonify({'ok': True}), 201
@@ -225,7 +225,7 @@ def api_update_student(name, line):
     csv_manager.update_student(
         lines, line,
         student_name=data.get('student_name'),
-        team_name=data.get('team_name'),
+        group_name=data.get('group_name'),
     )
     csv_manager.write_csv(file_path, lines)
 
@@ -245,14 +245,14 @@ def api_toggle_student(name, line):
     return jsonify({'ok': True})
 
 
-@app.route('/api/courses/<name>/students/<int:line>/team', methods=['DELETE'])
-def api_remove_team(name, line):
+@app.route('/api/courses/<name>/students/<int:line>/group', methods=['DELETE'])
+def api_remove_group(name, line):
     file_path = csv_manager.resolve_csv_path(name)
     if not os.path.exists(file_path):
         return jsonify({'error': 'Course not found'}), 404
 
     lines = csv_manager.read_csv(file_path)
-    csv_manager.remove_team(lines, line)
+    csv_manager.remove_group(lines, line)
     csv_manager.write_csv(file_path, lines)
 
     return jsonify({'ok': True})

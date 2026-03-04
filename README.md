@@ -1,6 +1,6 @@
 # Course Vault Management
 
-Python scripts for batch-managing a Gitea instance for teaching: create student accounts, courses, teams, and repos via the Gitea API.
+Python scripts for batch-managing a Gitea instance for teaching: create student accounts, courses, groups, and repos via the Gitea API.
 
 ## Typical Workflow
 
@@ -10,10 +10,10 @@ All scripts use `<course_name>` as the argument. CSV files live in the `courses/
 1. Create a course
    python scripts/create_course.py 114-2_ExampleCourse
 
-2. Add student accounts (and optionally assign to teams)
+2. Add student accounts (and optionally assign to groups)
    python scripts/add_students.py 114-2_ExampleCourse
 
-3. Create team repos for team projects (optional)
+3. Create group repos for group projects (optional)
    python scripts/create_repos.py 114-2_ExampleCourse
    python scripts/create_repos.py 114-2_ExampleCourse teacher/GameTemplate
 
@@ -29,12 +29,12 @@ All scripts use `<course_name>` as the argument. CSV files live in the `courses/
 Each CSV file represents **one course** (one Gitea organization).
 
 ```
-# Course StudentID StudentName Team
+# Course StudentID StudentName Group
 # Lines starting with # are ignored
-# Format: Course StudentID StudentName [Team]
-# Team is optional
+# Format: Course StudentID StudentName [Group]
+# Group is optional
 # All entries in a file should use the same Course
-# Course (organization) and Team must not contain spaces
+# Course (organization) and Group must not contain spaces
 
 114-2_ExampleCourse A1234567 StudentA
 114-2_ExampleCourse B9876543 StudentB
@@ -47,7 +47,7 @@ Each CSV file represents **one course** (one Gitea organization).
 | Course | Gitea organization name (no spaces) |
 | StudentID | Gitea username |
 | StudentName | For human reference only |
-| Team | Optional. Gitea team name (no spaces). Team name = repo name |
+| Group | Optional. Gitea team name (no spaces). Group name = repo name |
 
 ## Scripts
 
@@ -56,18 +56,18 @@ Each CSV file represents **one course** (one Gitea organization).
 | Script | Description |
 |---|---|
 | `create_course.py <course_name>` | Create a private course |
-| `add_students.py <course_name>` | Batch create student accounts, assign to course and teams |
-| `create_repos.py <course_name> [template]` | Create team repos (blank or from template), assign to teams |
+| `add_students.py <course_name>` | Batch create student accounts, assign to course and groups |
+| `create_repos.py <course_name> [template]` | Create group repos (blank or from template), assign to groups |
 | `reset_password.py <course_name> <student_id>` | Reset a student's password to default (reversed ID), must change on next login |
 
 ### Inspection
 
 | Script | Description |
 |---|---|
-| `check_course.py <course_name>` | Display course details: visibility, teams, repos, students |
-| `check_students.py <course_name>` | Verify each student's account, course membership, and team placement |
+| `check_course.py <course_name>` | Display course details: visibility, groups, repos, students |
+| `check_students.py <course_name>` | Verify each student's account, course membership, and group placement |
 | `check_login.py <course_name>` | Show students who have never signed into Gitea |
-| `check_commits.py <course_name> [team]` | Show teams where no student has committed yet. Supports alias files |
+| `check_commits.py <course_name> [group]` | Show groups where no student has committed yet. Supports alias files |
 | `list_courses.py` | List all courses |
 | `list_repos.py <course_name>` | List repos in a course with clone URLs |
 | `list_templates.py` | List available template repos for `create_repos` |
@@ -82,26 +82,26 @@ Each CSV file represents **one course** (one Gitea organization).
 - `must_change_password: true` - students must reset on first login
 - Existing accounts are skipped; visibility/restricted settings are auto-fixed
 
-### Team Repos (`create_repos.py`)
+### Group Repos (`create_repos.py`)
 
-Each team gets its own private repo. Teams can only access their own repo.
+Each group gets its own private repo. Groups can only access their own repo.
 
 ```
 Course: 114-2_ExampleCourse (private)
-+-- Team: TeamAlpha   ->  Repo: TeamAlpha
++-- Group: TeamAlpha   ->  Repo: TeamAlpha
 |   +-- A1234567
 |   +-- B9876543
-+-- Team: TeamBeta    ->  Repo: TeamBeta
++-- Group: TeamBeta    ->  Repo: TeamBeta
     +-- C1122334
 ```
 
 - Repos can be created blank or from a template (`owner/repo`)
-- Within one course, a student belongs to exactly one team (auto-corrected)
-- A student may belong to teams in different courses (different CSVs)
+- Within one course, a student belongs to exactly one group (auto-corrected)
+- A student may belong to groups in different courses (different CSVs)
 
 ### Commit Checking (`check_commits.py`)
 
-Checks whether team repos have any non-admin commits. Commits are identified by
+Checks whether group repos have any non-admin commits. Commits are identified by
 comparing the git author against Owners team members and admin emails.
 
 Students may commit with a personal git account (different name/email) that Gitea

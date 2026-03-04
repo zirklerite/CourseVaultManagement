@@ -46,16 +46,16 @@ async function apiCall(url, method = 'GET', body = null) {
     return resp.json();
 }
 
-// --- Team Management Actions ---
+// --- Group Management Actions ---
 
-async function assignTeam(courseName, line, teamName) {
+async function assignTeam(courseName, line, groupName) {
     await apiCall(`/api/courses/${courseName}/students/${line}`, 'PUT',
-                  { team_name: teamName });
+                  { group_name: groupName });
     location.reload();
 }
 
 async function removeFromTeam(courseName, line) {
-    await apiCall(`/api/courses/${courseName}/students/${line}/team`, 'DELETE');
+    await apiCall(`/api/courses/${courseName}/students/${line}/group`, 'DELETE');
     location.reload();
 }
 
@@ -64,11 +64,11 @@ async function toggleStudent(courseName, line) {
     location.reload();
 }
 
-async function addStudent(courseName, studentId, studentName, teamName) {
+async function addStudent(courseName, studentId, studentName, groupName) {
     await apiCall(`/api/courses/${courseName}/students`, 'POST', {
         student_id: studentId,
         student_name: studentName,
-        team_name: teamName || null,
+        group_name: groupName || null,
     });
     location.reload();
 }
@@ -80,8 +80,8 @@ function createTeam() {
     const name = input.value.trim();
     if (!name) return;
 
-    // Add the new team to all team-select dropdowns on the page
-    document.querySelectorAll('.team-select, select[name="team_name"]').forEach(select => {
+    // Add the new group to all group-select dropdowns on the page
+    document.querySelectorAll('.team-select, select[name="group_name"]').forEach(select => {
         // Avoid duplicates
         for (const opt of select.options) {
             if (opt.value === name) return;
@@ -92,7 +92,7 @@ function createTeam() {
         select.appendChild(option);
     });
 
-    // Add chip to the team list
+    // Add chip to the group list
     const chipList = document.getElementById('team-chip-list');
     if (chipList) {
         const chip = document.createElement('span');
@@ -103,7 +103,7 @@ function createTeam() {
         chipList.appendChild(chip);
     }
 
-    // Create empty team article above existing teams
+    // Create empty group article
     const hr = document.querySelector('main.container hr');
     if (hr) {
         const article = document.createElement('article');
@@ -124,7 +124,7 @@ function createTeam() {
 function assignTeamFromSelect(courseName, line) {
     const select = document.querySelector(`select.team-select[data-line="${line}"]`);
     if (!select || !select.value) {
-        alert('Please select a team first.');
+        alert('Please select a group first.');
         return;
     }
     assignTeam(courseName, line, select.value);
