@@ -10,7 +10,7 @@ allowed-tools: Bash(python:*), Bash(ls:*), Read
 Script directory: `G:/Teaching/Students/GitVaultAutomation/scripts`
 
 Available course CSV files:
-!`ls -1 G:/Teaching/Students/GitVaultAutomation/*.csv 2>/dev/null | sed 's/.*\///' | sed 's/\.csv$//'`
+!`ls -1 G:/Teaching/Students/GitVaultAutomation/courses/*.csv 2>/dev/null | sed 's/.*\///' | sed 's/\.csv$//'`
 
 ## Terminology
 
@@ -46,7 +46,7 @@ Available course CSV files:
 
 ## CSV format
 
-File: `{course_name}.csv` in the project root. Whitespace-delimited.
+File: `courses/{course_name}.csv`. Whitespace-delimited.
 
 Fields: `CourseName StudentID StudentName [TeamName]`
 - `#` lines are comments
@@ -54,7 +54,7 @@ Fields: `CourseName StudentID StudentName [TeamName]`
 - CourseName and TeamName must not contain spaces
 - TeamName is optional (students without teams won't be assigned to any)
 
-Alias file: `{course_name}.aliases.csv` (optional, auto-loaded by `check_commits`)
+Alias file: `courses/{course_name}.aliases.csv` (optional, auto-loaded by `check_commits`)
 - Format: `git_email student_id`
 - Maps personal git emails to student IDs for commits from unlinked accounts
 
@@ -72,7 +72,7 @@ Alias file: `{course_name}.aliases.csv` (optional, auto-loaded by `check_commits
 - When output shows FAIL/NEVER/OK, highlight failures clearly to the user.
 - When presenting script output, read the CSV file to look up **student names** by StudentID (the scripts only output IDs). Include names alongside IDs in your report to the user.
 - If students show "does not exist", suggest running `add_students` first.
-- When the user says **"local"** (e.g., "show me the local teams", "check local students"), read directly from the CSV files instead of calling scripts that query the remote Gitea server. For example, "local teams" means parse `{course_name}.csv` and list the team names and members found in the file.
+- When the user says **"local"** (e.g., "show me the local teams", "check local students"), read directly from the CSV files instead of calling scripts that query the remote Gitea server. For example, "local teams" means parse `courses/{course_name}.csv` and list the team names and members found in the file.
 - When the user says **"add {student(s)} to local team {team}"**, edit the CSV file to set or change the team column. Supports one or multiple students (by ID or name, partial match). Show all matched students with **name**, **StudentID**, and the **target team name**, then confirm before editing. Team names must be in English with no spaces (e.g., `TeamAlpha`). If the user gives a name with spaces or non-English characters, convert it to a valid team name and confirm.
 
 ## Reset password
@@ -87,14 +87,14 @@ Alias file: `{course_name}.aliases.csv` (optional, auto-loaded by `check_commits
 The user invoked `/course` with: $ARGUMENTS
 
 1. Determine the **course name**:
-   - If the user said "let's work on XXX" or "switch to XXX", set XXX as the current course for all following commands. Confirm: "Working on **XXX**. Using `XXX.csv`."
+   - If the user said "let's work on XXX" or "switch to XXX", set XXX as the current course for all following commands. Confirm: "Working on **XXX**. Using `courses/XXX.csv`."
    - If the command includes a course name explicitly, use it (does NOT change the current course).
    - If no course name is given, use the current course if one is set.
    - If no current course and only one CSV exists, use it.
    - Otherwise, ask.
    - The current course determines which data files are used:
-     - `{course_name}.csv` — student/team roster (required)
-     - `{course_name}.aliases.csv` — git email mappings (optional, used by `check_commits`)
+     - `courses/{course_name}.csv` — student/team roster (required)
+     - `courses/{course_name}.aliases.csv` — git email mappings (optional, used by `check_commits`)
 
 2. Parse the **command** from the arguments.
    - The first word should match one of the commands above.

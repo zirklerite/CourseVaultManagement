@@ -4,7 +4,7 @@ Python scripts for batch-managing a Gitea instance for teaching: create student 
 
 ## Typical Workflow
 
-All scripts use `<course_name>` as the argument. CSV files are named `{course_name}.csv`.
+All scripts use `<course_name>` as the argument. CSV files live in the `courses/` folder, named `{course_name}.csv`.
 
 ```
 1. Create a course
@@ -106,7 +106,7 @@ comparing the git author against Owners team members and admin emails.
 
 Students may commit with a personal git account (different name/email) that Gitea
 cannot link to their student account. To handle this, create an alias file named
-`{course_name}.aliases.csv`:
+`courses/{course_name}.aliases.csv`:
 
 ```
 # Git email to StudentID mapping
