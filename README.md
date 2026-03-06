@@ -1,6 +1,37 @@
 # Course Vault Management
 
-Python scripts for batch-managing a Gitea instance for teaching: create student accounts, courses, groups, and repos via the Gitea API.
+Svelte 5 SPA + CLI scripts for batch-managing a Gitea instance for teaching: create student accounts, courses, groups, and repos via the Gitea API.
+
+## Quick Start
+
+```
+pnpm install
+pnpm dev          # start dev server (SPA + CSV API)
+pnpm build        # build static files to dist/
+pnpm preview      # serve built files + CSV API
+```
+
+## Architecture
+
+- **Svelte 5 SPA** with Vite, Tailwind CSS v4, hash-based routing
+- **Vite plugin** (`vite-plugin-csv-api.js`) serves CSV file API routes during dev/preview
+- **Gitea API** called directly from browser (credentials via `import.meta.env`)
+- **CLI scripts** in TypeScript, run with `tsx`
+
+```
+CourseVaultManagement/
+  src/                    # Svelte 5 SPA (TypeScript)
+    lib/                  # router, API client, Gitea client
+    pages/                # Landing, Course, Groups
+    components/           # Nav, CourseCard, Badge, TeamChip
+  scripts/                # CLI scripts (TypeScript, run with tsx)
+    config.ts             # dotenv, credentials
+    gitea_api.ts          # shared Gitea API helpers
+    *.ts                  # individual commands
+  csv_manager.ts          # shared CSV read/write (used by plugin + CLI)
+  vite-plugin-csv-api.js  # Vite plugin for CSV API routes
+  courses/                # CSV data files
+```
 
 ## Typical Workflow
 
@@ -8,20 +39,20 @@ All scripts use `<course_name>` as the argument. CSV files live in the `courses/
 
 ```
 1. Create a course
-   python scripts/create_course.py 114-2_ExampleCourse
+   npx tsx scripts/create_course.ts 114-2_ExampleCourse
 
 2. Add student accounts (and optionally assign to groups)
-   python scripts/add_students.py 114-2_ExampleCourse
+   npx tsx scripts/add_students.ts 114-2_ExampleCourse
 
 3. Create group repos for group projects (optional)
-   python scripts/create_repos.py 114-2_ExampleCourse
-   python scripts/create_repos.py 114-2_ExampleCourse teacher/GameTemplate
+   npx tsx scripts/create_repos.ts 114-2_ExampleCourse
+   npx tsx scripts/create_repos.ts 114-2_ExampleCourse teacher/GameTemplate
 
 4. Verify everything is set up correctly
-   python scripts/check_course.py 114-2_ExampleCourse
-   python scripts/check_students.py 114-2_ExampleCourse
-   python scripts/check_login.py 114-2_ExampleCourse
-   python scripts/check_commits.py 114-2_ExampleCourse
+   npx tsx scripts/check_course.ts 114-2_ExampleCourse
+   npx tsx scripts/check_students.ts 114-2_ExampleCourse
+   npx tsx scripts/check_login.ts 114-2_ExampleCourse
+   npx tsx scripts/check_commits.ts 114-2_ExampleCourse
 ```
 
 ## CSV Format
@@ -55,26 +86,26 @@ Each CSV file represents **one course** (one Gitea organization).
 
 | Script | Description |
 |---|---|
-| `create_course.py <course_name>` | Create a private course |
-| `add_students.py <course_name>` | Batch create student accounts, assign to course and groups |
-| `create_repos.py <course_name> [template]` | Create group repos (blank or from template), assign to groups |
-| `reset_password.py <course_name> <student_id>` | Reset a student's password to default (reversed ID), must change on next login |
+| `create_course.ts <course_name>` | Create a private course |
+| `add_students.ts <course_name>` | Batch create student accounts, assign to course and groups |
+| `create_repos.ts <course_name> [template]` | Create group repos (blank or from template), assign to groups |
+| `reset_password.ts <course_name> <student_id>` | Reset a student's password to default (reversed ID), must change on next login |
 
 ### Inspection
 
 | Script | Description |
 |---|---|
-| `check_course.py <course_name>` | Display course details: visibility, groups, repos, students |
-| `check_students.py <course_name>` | Verify each student's account, course membership, and group placement |
-| `check_login.py <course_name>` | Show students who have never signed into Gitea |
-| `check_commits.py <course_name> [group]` | Show groups where no student has committed yet. Supports alias files |
-| `list_courses.py` | List all courses |
-| `list_repos.py <course_name>` | List repos in a course with clone URLs |
-| `list_templates.py` | List available template repos for `create_repos` |
+| `check_course.ts <course_name>` | Display course details: visibility, groups, repos, students |
+| `check_students.ts <course_name>` | Verify each student's account, course membership, and group placement |
+| `check_login.ts <course_name>` | Show students who have never signed into Gitea |
+| `check_commits.ts <course_name> [group]` | Show groups where no student has committed yet. Supports alias files |
+| `list_courses.ts` | List all courses |
+| `list_repos.ts <course_name>` | List repos in a course with clone URLs |
+| `list_templates.ts` | List available template repos for `create_repos` |
 
 ## How It Works
 
-### Student Accounts (`add_students.py`)
+### Student Accounts (`add_students.ts`)
 
 - Creates accounts with **reversed student ID** as the default password
 - Email: `{StudentID}@mail.shu.edu.tw`
@@ -82,7 +113,7 @@ Each CSV file represents **one course** (one Gitea organization).
 - `must_change_password: true` - students must reset on first login
 - Existing accounts are skipped; visibility/restricted settings are auto-fixed
 
-### Group Repos (`create_repos.py`)
+### Group Repos (`create_repos.ts`)
 
 Each group gets its own private repo. Groups can only access their own repo.
 
@@ -99,7 +130,7 @@ Course: 114-2_ExampleCourse (private)
 - Within one course, a student belongs to exactly one group (auto-corrected)
 - A student may belong to groups in different courses (different CSVs)
 
-### Commit Checking (`check_commits.py`)
+### Commit Checking (`check_commits.ts`)
 
 Checks whether group repos have any non-admin commits. Commits are identified by
 comparing the git author against Owners team members and admin emails.
@@ -118,6 +149,14 @@ another@example.com B9876543
 The script loads this file automatically if it exists. Unresolved authors are
 reported as "unknown git authors" at the end of the output.
 
+## Web Dashboard
+
+The SPA provides three pages:
+
+- **Landing** (`#/`) — course list with student/group counts
+- **Course** (`#/course/:name`) — roster grouped by team, with live Gitea login status
+- **Groups** (`#/course/:name/groups`) — create groups, assign/remove students, toggle active/inactive
+
 ## Configuration
 
 ### `.env` file
@@ -128,17 +167,23 @@ Create a `.env` file in the project root:
 GITEA_URL=http://localhost:3000
 GITEA_ADMIN_USER=admin
 GITEA_ADMIN_PASS=your_password
+
+# Browser-accessible (Vite exposes VITE_ prefixed vars)
+VITE_GITEA_URL=http://localhost:3000
+VITE_GITEA_ADMIN_USER=admin
+VITE_GITEA_ADMIN_PASS=your_password
 ```
 
 | Variable | Description |
 |---|---|
-| `GITEA_URL` | Base URL of the Gitea instance |
+| `GITEA_URL` | Base URL of the Gitea instance (used by CLI scripts) |
 | `GITEA_ADMIN_USER` | Admin account username with API access |
 | `GITEA_ADMIN_PASS` | Admin account password |
+| `VITE_GITEA_*` | Same values, exposed to the browser SPA |
 
-If `.env` is not present, credentials are prompted interactively. The `.env` file is gitignored.
+If `.env` is not present, CLI credentials are prompted interactively. The `.env` file is gitignored.
 
 ### Requirements
 
-- Python 3
-- `requests` (`pip install requests`)
+- Node.js 20+
+- pnpm

@@ -2,15 +2,15 @@
 name: course
 description: Manage courses on Gitea — create courses, add students, create repos, and check status. Use when the user wants to manage their teaching Gitea setup.
 argument-hint: <command> <course_name> [extra_args]
-allowed-tools: Bash(python:*), Bash(ls:*), Read
+allowed-tools: Bash(npx:*), Bash(ls:*), Read
 ---
 
 ## Context
 
-Script directory: `G:/Teaching/Students/GitVaultAutomation/scripts`
+Script directory: `G:/Teaching/Students/CourseVaultManagement/scripts`
 
 Available course CSV files:
-!`ls -1 G:/Teaching/Students/GitVaultAutomation/courses/*.csv 2>/dev/null | sed 's/.*\///' | sed 's/\.csv$//'`
+!`ls -1 G:/Teaching/Students/CourseVaultManagement/courses/*.csv 2>/dev/null | sed 's/.*\///' | sed 's/\.csv$//'`
 
 ## Terminology
 
@@ -72,12 +72,15 @@ Alias file: `courses/{course_name}.aliases.csv` (optional, auto-loaded by `check
 - When output shows FAIL/NEVER/OK, highlight failures clearly to the user.
 - When presenting script output, read the CSV file to look up **student names** by StudentID (the scripts only output IDs). Include names alongside IDs in your report to the user.
 - If students show "does not exist", suggest running `add_students` first.
-- When the user says **"local"** (e.g., "show me the local groups", "check local students"), read directly from the CSV files instead of calling scripts that query the remote Gitea server. For example, "local groups" means parse `courses/{course_name}.csv` and list the group names and members found in the file.
+- **Data source rules:**
+  - **"local"** or **"csv"** mentioned → use CSV files only. Read directly from `courses/{course_name}.csv`.
+  - **"remote" / "server" / "gitea"** mentioned → use Gitea API only. Run the appropriate script.
+  - **Neither mentioned** → gather **both** local (CSV) and remote (Gitea) data, then answer. If there is any mismatch between local and remote data (e.g., a student exists in CSV but not on Gitea, or group assignments differ), **warn the user** about those conflicts.
 - When the user says **"add {student(s)} to local group {group}"**, edit the CSV file to set or change the group column. Supports one or multiple students (by ID or name, partial match). Show all matched students with **name**, **StudentID**, and the **target group name**, then confirm before editing. Group names must be in English with no spaces (e.g., `TeamAlpha`). If the user gives a name with spaces or non-English characters, convert it to a valid group name and confirm.
 
 ## Reset password
 
-**Always confirm before resetting.** Look up the student in the CSV and show both **name** and **StudentID**. Only run `reset_password.py` after the user confirms.
+**Always confirm before resetting.** Look up the student in the CSV and show both **name** and **StudentID**. Only run `reset_password.js` after the user confirms.
 
 - If the user gives a **name** (not an ID): search the CSV with partial match. If multiple matches, list them all and ask the user to pick one.
 - If the user gives a **StudentID**: look up the name from the CSV and show it for confirmation.
@@ -102,7 +105,7 @@ The user invoked `/course` with: $ARGUMENTS
 
 3. Run the script:
    ```
-   python G:/Teaching/Students/GitVaultAutomation/scripts/<command>.py [args]
+   npx tsx G:/Teaching/Students/CourseVaultManagement/scripts/<command>.ts [args]
    ```
 
 4. Present the output clearly. If there are warnings or failures, highlight them.
